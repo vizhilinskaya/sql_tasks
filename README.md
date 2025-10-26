@@ -373,7 +373,7 @@ SELECT order_id
  WHERE action = 'create_order'
    AMD DATE_PART('year', time) = 2022
    AND DATE_PART('month', time) = 08
-ORDER BY order_id ASC;
+ ORDER BY order_id ASC;
 ```
 
 ### Задача 26
