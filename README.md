@@ -541,6 +541,7 @@ SELECT age(current_date, max(birth_date))::varchar as min_age
  WHERE sex = 'male';
 ```
 
+### Задача 39
 
 
 
