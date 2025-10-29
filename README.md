@@ -536,19 +536,85 @@ SELECT COUNT(*) AS orders
 Поле в результирующей таблице: min_age
 
 ```sql
-SELECT age(current_date, max(birth_date))::varchar as min_age
+SELECT AGE(current_date, max(birth_date))::varchar as min_age
   FROM couriers
  WHERE sex = 'male';
 ```
 
 ### Задача 39
+Посчитайте стоимость заказа, в котором будут **три пачки сухариков, две пачки чипсов и один энергетический напиток**. Колонку с рассчитанной стоимостью заказа назовите **order_price**.
+Для расчётов используйте таблицу **products**.
+Поле в результирующей таблице: **order_price**.
 
+```sql
+SELECT SUM(CASE WHEN name = 'сухарики' THEN price * 3
+                WHEN name = 'чипсы' THEN price * 2
+                WHEN name = 'энергетический напиток' THEN price
+                ELSE 0
+                END) AS order_price
+  FROM products;
+```
 
+### Задача 40
+Рассчитайте среднюю цену товаров в таблице **products**, в названиях которых присутствуют слова «чай» или «кофе». Любым известным способом исключите из расчёта товары, содержащие в названии «иван-чай» или «чайный гриб».
+Среднюю цену округлите до двух знаков после запятой. Столбец с полученным значением назовите **avg_price**.
+Поле в результирующей таблице: **avg_price**.
 
+```sql
+SELECT ROUND(AVG(price), 2) AS avg_price
+  FROM products
+ WHERE (name LIKE '%чай%'
+    OR name LIKE '%кофе%')
+   AND name NOT LIKE '%иван-чай%'
+   AND name NOT LIKE '%чайный гриб%';
+```
 
+### Задача 41
+Воспользуйтесь функцией AGE и рассчитайте разницу в возрасте между самым старым и самым молодым пользователями женкского пола в таблице **users**. 
+Разницу в возрасте выразите количеством лет, месяцев и дней, переведя её в тип VARCHAR. 
+Колонку с посчитанным значением назовите **age_diff**.
+Поле в результирующей таблице: **age_diff**.
 
+```sql
+SELECT AGE(MAX(birth_date), MIN(birth_date))::varchar AS age_diff
+  FROM users
+ WHERE sex = 'male';
+```
+### Задача 42
+Рассчитайте среднее количество товаров в заказах из таблицы **orders**, которые пользователи оформляли по выходным дням (суббота и воскресенье) в течение всего времени работы сервиса.
+Полученное значение округлите до двух знаков после запятой. Колонку с ним назовите **avg_order_size**.
+Поле в результирующей таблице: **avg_order_size**.
 
+```sql
+SELECT ROUND(AVG(ARRAY_LENGTH(product_ids, 1)), 2) AS avg_order_size
+  FROM orders
+ WHERE DATE_PART('dow', creation_time) IN (6, 0);
+```
 
+### Задача 43
+На основе данных в таблице **user_actions** посчитайте количество уникальных пользователей сервиса, количество уникальных заказов, поделите одно на другое и выясните, сколько заказов приходится на одного пользователя.
+В результирующей таблице отразите все три значения — поля назовите соответственно **unique_users, unique_orders, orders_per_user**.
+Показатель числа заказов на пользователя округлите до двух знаков после запятой.
+Поля в результирующей таблице: **unique_users, unique_orders, orders_per_user**.
 
+```sql
+SELECT COUNT(DISTINCT user_id) AS unique_users,
+       COUNT(DISTINCT order_id) AS unique_orders,
+       ROUND(COUNT(DISTINCT order_id)::decimal / COUNT(DISTINCT user_id), 2) AS orders_per_user
+  FROM user_actions;
+```
+### Задача 43
+Посчитайте, сколько пользователей никогда не отменяли свой заказ.
+Полученный столбец назовите **users_count**.
+Поле в результирующей таблице: **users_count**.
 
+```sql
+SELECT COUNT(DISTINCT user_id) - COUNT(DISTINCT user_id) filter (WHERE action = 'cancel_order') AS users_count
+  FROM user_actions;
+```
 
+### Задача 44
+SELECT COUNT(order_id) AS orders,
+       COUNT(order_id) filter (WHERE ARRAY_LENGTH(product_ids, 1) >= 5) AS large_orders,
+       ROUND(COUNT(order_id) filter (WHERE ARRAY_LENGTH(product_ids, 1) >= 5)::decimal / count(order_id), 2) AS large_orders_share
+  FROM orders;
