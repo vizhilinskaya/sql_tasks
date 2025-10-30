@@ -614,7 +614,69 @@ SELECT COUNT(DISTINCT user_id) - COUNT(DISTINCT user_id) filter (WHERE action = 
 ```
 
 ### Задача 44
+Посчитайте общее количество заказов в таблице orders, количество заказов с пятью и более товарами и найдите долю заказов с пятью и более товарами в общем количестве заказов.
+В результирующей таблице отразите все три значения — поля назовите соответственно **orders, large_orders, large_orders_share**.
+Долю заказов с пятью и более товарами в общем количестве товаров округлите до двух знаков после запятой.
+Поля в результирующей таблице: **orders, large_orders, large_orders_share**.
+
+```sql
 SELECT COUNT(order_id) AS orders,
        COUNT(order_id) filter (WHERE ARRAY_LENGTH(product_ids, 1) >= 5) AS large_orders,
        ROUND(COUNT(order_id) filter (WHERE ARRAY_LENGTH(product_ids, 1) >= 5)::decimal / count(order_id), 2) AS large_orders_share
   FROM orders;
+```
+
+### Задача 45
+С помощью оператора **GROUP BY** посчитайте количество курьеров мужского и женского пола в таблице couriers.
+Новую колонку с числом курьеров назовите **couriers_count**.
+Результат отсортируйте по этой колонке по возрастанию.
+Поля в результирующей таблице: **sex, couriers_count**.
+
+```sql
+SELECT sex,
+       COUNT(courier_id) AS couriers_count
+  FROM couriers
+ GROUP BY sex
+ ORDER BY sex;
+```
+
+### Задача 46
+Посчитайте количество созданных и отменённых заказов в таблице **user_actions**.
+Новую колонку с числом заказов назовите **orders_count**.
+Результат отсортируйте по числу заказов по возрастанию.
+Поля в результирующей таблице: **action, orders_count**.
+
+```sql
+SELECT action,
+       COUNT(action) AS orders_count
+ FROM  user_actions
+ GROUP BY action
+ ORDER BY orders_count;
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
