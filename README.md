@@ -890,6 +890,14 @@ SELECT CASE WHEN date_part('year', age(birth_date)) BETWEEN 18 AND 24 THEN '18-2
 Поля в результирующей таблице: **week_part, avg_order_size**.
 
 ```sql
+SELECT CASE WHEN date_part('dow', creation_time) IN (1, 2, 3, 4, 5) THEN 'weekdays'
+            ELSE 'weekend'
+            END AS week_part,
+      ROUND(AVG(array_length(product_ids, 1)), 2) AS avg_order_size
+  FROM orders
+ GROUP BY week_part
+ ORDER BY avg_order_size;
+```
 
 
 
