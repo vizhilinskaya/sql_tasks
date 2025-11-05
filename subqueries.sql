@@ -124,10 +124,34 @@ WITH created_orders AS (SELECT order_id
 SELECT COUNT(order_id) AS orders_count
 FROM courier_actions
 WHERE order_id NOT IN (SELECT *
-                        FROM   created_orders);
+                       FROM created_orders);
+
+/*Выясните, есть ли в таблице user_actions такие заказы, которые были приняты курьерами, но не были доставлены пользователям: у заказа нет записи с действием 'deliver_order' в таблице courier_actions. Посчитайте уникальное количество таких заказов: используйте count(distinct order_id).
+Колонку с числом заказов назовите orders_count.
+Поле в результирующей таблице: orders_count.*/
+
+SELECT COUNT(DISTINCT ca.order_id) AS orders_count
+FROM courier_actions ca
+WHERE ca.action = 'accept_order' 
+  AND ca.order_id NOT IN (SELECT order_id
+                          FROM courier_actions
+                          WHERE action = 'deliver_order')
+  AND ca.order_id IN (SELECT order_id
+                      FROM user_actions
+                      WHERE action = 'create_order');
 
 
+/*Определите количество отменённых заказов в таблице courier_actions и выясните, есть ли в этой таблице такие заказы, которые были отменены пользователями, но при этом всё равно были доставлены. Посчитайте количество таких заказов.
+Колонку с отменёнными заказами назовите orders_canceled. Колонку с отменёнными, но доставленными заказами назовите orders_canceled_and_delivered. 
+Поля в результирующей таблице: orders_canceled, orders_canceled_and_delivered*/
 
+SELECT COUNT(DISTINCT order_id) AS orders_canceled,
+       COUNT(order_id) FILTER (WHERE action = 'deliver_order') AS orders_canceled_and_delivered
+FROM courier_actions
+WHERE order_id IN (SELECT order_id
+                    FROM  user_actions
+                    WHERE action = 'cancel_order')
 
-
-
+/*По таблицам courier_actions и user_actions снова определите число недоставленных заказов и среди них посчитайте количество отменённых заказов и количество заказов, которые не были отменены (и соответственно, пока ещё не были доставлены).
+Колонку с недоставленными заказами назовите orders_undelivered, колонку с отменёнными заказами назовите orders_canceled, колонку с заказами «в пути» назовите orders_in_process.
+Поля в результирующей таблице: orders_undelivered, orders_canceled, orders_in_process.*/
